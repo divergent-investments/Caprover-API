@@ -71,7 +71,8 @@ class CaproverAPI:
     APP_DELETE_PATH = '/api/v2/user/apps/appDefinitions/delete'
     ADD_CUSTOM_DOMAIN_PATH = '/api/v2/user/apps/appDefinitions/customdomain'
     UPDATE_APP_PATH = '/api/v2/user/apps/appDefinitions/update'
-    ENABLE_SSL_PATH = '/api/v2/user/apps/appDefinitions/enablecustomdomainssl'
+    ENABLE_SSL_PATH_BASE_DOMAIN = '/api/v2/user/apps/appDefinitions/enablebasedomainssl'
+    ENABLE_SSL_PATH_CUSTOM_DOMAIN = '/api/v2/user/apps/appDefinitions/enablecustomdomainssl'
     APP_DATA_PATH = '/api/v2/user/apps/appData'
     CREATE_BACKUP_PATH = '/api/v2/user/system/createbackup'
     DOWNLOAD_BACKUP_PATH = '/api/v2/downloads/'
@@ -478,11 +479,12 @@ class CaproverAPI:
         :return:
         """
         logging.info(
-            "{} | Enabling SSL for domain {}".format(app_name, custom_domain)
+            "{} | Enabling SSL for custom domain {}".format(app_name, custom_domain)
         )
         data = json.dumps({"appName": app_name, "customDomain": custom_domain})
+
         response = self.session.post(
-            self._build_url(CaproverAPI.ENABLE_SSL_PATH),
+            self._build_url(CaproverAPI.ENABLE_SSL_PATH_CUSTOM_DOMAIN if len(custom_domain) > 0 else  CaproverAPI.ENABLE_SSL_PATH_BASE_DOMAIN),
             headers=self.headers, data=data
         )
         return CaproverAPI._check_errors(response.json())
@@ -627,7 +629,7 @@ class CaproverAPI:
         if enable_ssl:
             time.sleep(0.10)
             response = self.enable_ssl(
-                app_name=app_name, custom_domain=custom_domain
+                app_name=app_name, custom_domain=custom_domain if custom_domain else ""
             )
         if kwargs:
             time.sleep(0.10)
