@@ -472,19 +472,34 @@ class CaproverAPI:
         return CaproverAPI._check_errors(response.json())
 
     @retry(times=3, exceptions=COMMON_ERRORS)
-    def enable_ssl(self, app_name: str, custom_domain: str):
+    def enable_ssl(self, app_name: str):
+        """
+        :param app_name: app name
+        :param custom_domain: custom domain to add
+        :return:
+        """
+        logging.info("{} | Enabling SSL".format(app_name))
+        data = json.dumps({"appName": app_name})
+
+        response = self.session.post(
+            self._build_url(CaproverAPI.ENABLE_SSL_PATH_BASE_DOMAIN),
+            headers=self.headers, data=data
+        )
+        return CaproverAPI._check_errors(response.json())
+    
+    @retry(times=3, exceptions=COMMON_ERRORS)
+    def enable_ssl_custom_domain(self, app_name: str, custom_domain: str):
         """
         :param app_name: app name
         :param custom_domain: custom domain to add
         :return:
         """
         logging.info(
-            "{} | Enabling SSL for custom domain {}".format(app_name, custom_domain)
+            "{} | Enabling SSL for domain {}".format(app_name, custom_domain)
         )
         data = json.dumps({"appName": app_name, "customDomain": custom_domain})
-
         response = self.session.post(
-            self._build_url(CaproverAPI.ENABLE_SSL_PATH_CUSTOM_DOMAIN if len(custom_domain) > 0 else  CaproverAPI.ENABLE_SSL_PATH_BASE_DOMAIN),
+            self._build_url(CaproverAPI.ENABLE_SSL_PATH_CUSTOM_DOMAIN),
             headers=self.headers, data=data
         )
         return CaproverAPI._check_errors(response.json())
